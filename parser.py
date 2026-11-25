@@ -62,31 +62,13 @@ pending = {}
 # Store completed events.
 events = []
 # Operations that transfer information into a process.
-READ_OPERATIONS = {
-    "read",
-    "readv",
-    "recvfrom",
-    "recvmsg"
-}
+READ_OPERATIONS = {"read","readv","recvfrom","recvmsg"}
 # Operations that transfer information out of a process.
-WRITE_OPERATIONS = {
-    "write",
-    "writev",
-    "sendto",
-    "sendmsg"
-}
+WRITE_OPERATIONS = {"write","writev","sendto","sendmsg"}
 # Operations associated with process creation.
-PROCESS_OPERATIONS = {
-    "fork",
-    "vfork",
-    "clone"
-}
+PROCESS_OPERATIONS = {"fork","vfork","clone"}
 IO_OPERATIONS = READ_OPERATIONS | WRITE_OPERATIONS
-SUPPORTED_OPERATIONS = (
-    IO_OPERATIONS |
-    PROCESS_OPERATIONS |
-    {"execve"}
-)
+SUPPORTED_OPERATIONS = (IO_OPERATIONS |PROCESS_OPERATIONS |{"execve"})
 # Check whether a Sysdig field contains a valid value.
 def is_valid(value):
     return (value is not None and str(value).strip() not in ("", "<NA>", "N/A"))
