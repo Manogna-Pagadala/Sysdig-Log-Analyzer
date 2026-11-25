@@ -13,30 +13,21 @@
 # -p '*%proc.name %proc.pid %thread.tid %proc.ppid %evt.type %evt.category %fd.type %fd.name %evt.dir %evt.reltime %evt.rawres %fd.sip %fd.sport %fd.dip %fd.dport %fd.l4proto %proc.exepath %proc.args' \
 # > capture.txt
 
-# While Sysdig is running, execute traffic_gen.py in another terminal:
-# python3 traffic_gen.py
+# While Sysdig is running, execute traffic_gen.py in another terminal: python3 traffic_gen.py
 
 # Stop Sysdig using Ctrl+C after the workload finishes.
 
-# Run this parser to generate tuples.txt and written.dot:
-# python3 parser.py > written.dot
+# Run this parser to generate tuples.txt and written.dot: python3 parser.py > written.dot
 
-# Convert the DOT graph into an SVG image:
-# dot -Tsvg written.dot -o written.svg
+# Convert the DOT graph into an SVG image: dot -Tsvg written.dot -o written.svg
 
-# Alternatively, generate a PNG image:
-# dot -Tpng written.dot -o written.png
+# Alternatively, generate a PNG image: dot -Tpng written.dot -o written.png
 
-# Open the generated image:
-# xdg-open written.svg
+# Open the generated image: xdg-open written.svg
 
-# This parser considers read/write and network data transfer
-# operations performed by wget and cp.
+# This parser considers read/write and network data transfer operations performed by wget and cp. It also considers process creation and execution events.
 #
-# It also considers process creation and execution events.
-#
-# Every successfully processed operation is represented as:
-# <subject, operation, object>
+# Every successfully processed operation is represented as: <subject, operation, object>
 #
 # Processes are identified using PID and process name.
 # Files are identified using their full paths.
@@ -52,8 +43,7 @@ from gvgen import GvGen
 
 # Initialize the information flow graph.
 graph = GvGen()
-# Disable smart mode to preserve multiple events between
-# the same pair of nodes.
+# Disable smart mode to preserve multiple events between the same pair of nodes.
 graph.smart_mode = 0
 # Store unique entities and their corresponding graph nodes.
 objs = {}
@@ -84,19 +74,16 @@ def to_int(value):
         return int(value)
     except (ValueError, TypeError):
         return None
-# Construct a unique process identifier using
-# the process name and PID.
+# Construct a unique process identifier using the process name and PID.
 def get_process_id(event):
     name = get_field(event, "proc.name")
     pid = to_int(get_field(event, "proc.pid"))
     if not is_valid(name) or pid is None:
         return None
     return ("process", str(name), pid)
-# Construct a unique object identifier.
-# An object can be a file or a network connection.
+# Construct a unique object identifier. An object can be a file or a network connection.
 def get_object_id(entry, exit_event):
-    # Prefer resource information from the exit event.
-    # Some fields may not be available during entry.
+    # Prefer resource information from the exit event. Some fields may not be available during entry.
     def resource_field(field):
         value = get_field(exit_event, field)
         if is_valid(value):
@@ -277,9 +264,7 @@ with open("capture.txt", "r", encoding="utf-8") as capture_file, open("tuples.tx
             # Process creation events.
             elif operation in PROCESS_OPERATIONS:
                 process_creation_event(entry,event,operation,start_time,end_time,tuples_file)
-# Save the completed events in JSON format.
-# The backtracking algorithm can read this file directly
-# instead of parsing the DOT graph again.
+# Save the completed events in JSON format. The backtracking algorithm can read this file directly instead of parsing the DOT graph again.
 with open("events.json", "w", encoding="utf-8") as events_file:
     json.dump(events, events_file, indent=4)
 # Print statistics to stderr so that they do not interfere with the DOT output redirected to written.dot.
